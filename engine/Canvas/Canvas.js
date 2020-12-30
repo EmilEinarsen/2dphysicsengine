@@ -12,7 +12,7 @@ export default function Canvas({ id, settings }) {
     if(!Canvas.element) {
         console.log('no canvas')
         return
-    }
+	}
 
     Canvas.element.height = height()
     Canvas.element.width = width()

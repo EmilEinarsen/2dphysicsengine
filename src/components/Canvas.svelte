@@ -1,10 +1,16 @@
 <script>
     import { onMount } from 'svelte'
-    import Engine from '../../engine'
+	import Engine from '../../engine'
 
-    let engine
-
-    onMount(() => new Engine({ id: 'canvas' }))
+	onMount(() => Engine({ 
+		id: 'canvas', 
+		settings: { 
+			mode: Engine.MODE.DEBUG, 
+			perspective: Engine.PERSPECTIVES.SIDE,
+			edges: true
+		} 
+	}))
+	
 </script>
 
 <canvas id="canvas">

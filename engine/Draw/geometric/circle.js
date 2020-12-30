@@ -12,14 +12,23 @@ import Canvas from '../../Canvas'
  */
 const circle = ({ 
     point, 
-    radius, 
-    color = 'black' 
+    size, 
+	color = 'black',
+	type = circle.types.fill
 }) => {
-    Canvas.ctx.arc(point.x, point.y, radius, 0, 2 * Math.PI)
-    
-    Canvas.ctx.stroke()
+	circle.types[type] ?? (type = circle.types.fill)
+	
+	Canvas.ctx.beginPath()
+    Canvas.ctx.arc(point.x, point.y, size.radius, 0, 2 * Math.PI)
     Canvas.ctx.fillStyle = color
-    Canvas.ctx.fill()
+    Canvas.ctx[type]()
 }
+
+circle.types = {
+	fill: 'fill',
+	stroke: 'stroke'
+}
+
+circle.form = 'CIRCLE'
 
 export default circle

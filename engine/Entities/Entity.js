@@ -25,48 +25,61 @@ let Collision = {
  * @param {number} param0.pos.vy
  * @param {number} param0.pos.ax 
  * @param {number} param0.pos.ay
+ * @param {object} param0.form
+ * @param {string} param0.form.type
  */
 function PhysicsEntity({ 
-    collisionName = PhysicsEntity.ELASTIC, 
-    type = PhysicsEntity.DYNAMIC, 
-    size = {}, 
-    pos = {}
+    collisionName = PhysicsEntity.COLLISION.ELASTIC, 
+    physics = PhysicsEntity.PHYSICS.DYNAMIC, 
+	size = {},
+	mass = 1,
+	pos = {},
+	form = {}
 }) {
-    
-    PhysicsEntity.collision = collisionName
-    PhysicsEntity.type = type
+    const Entity = {}
+    Entity.collision = collisionName
+	Entity.physics = physics
+	
+	Entity.form = {
+		type: form.type ?? 'RECTANGLE'
+	}
 
-    PhysicsEntity.size = {
-        height: size.height || 20,
-        width: size.width || 20,
-    }
+    Entity.size = {
+		width: size.width ?? size.radius * 2,
+		height: size.height ?? size.radius * 2,
+		radius : size.radius
+	}
 
-    Object.assign(PhysicsEntity, {
+	Entity.mass = mass
+
+    Object.assign(Entity, {
         x: pos.x || 0, y: pos.y || 0,
         vx: pos.vx || 0, vy: pos.vy || 0,
         ax: pos.ax || 0, ay: pos.ay || 0,
     })
 
-    return { ...PhysicsEntity }
+	Object.assign(Entity, {
+		getMidX: () => form.type === 'CIRCLE' ? Entity.x : Entity.x + (Entity.size.width / 2),
+		getMidY: () => form.type === 'CIRCLE' ? Entity.y : Entity.y + (Entity.size.height / 2),
+		getTop: () => form.type === 'CIRCLE' ? Entity.y - Entity.size.radius : Entity.y,
+		getBottom: () => form.type === 'CIRCLE' ? Entity.y + Entity.size.radius : Entity.y + Entity.size.height,
+		getLeft: () => form.type === 'CIRCLE' ? Entity.x - Entity.size.radius : Entity.x,
+		getRight: () => form.type === 'CIRCLE' ? Entity.x + Entity.size.radius : Entity.x + Entity.size.width,
+	})
+
+    return Entity
 }
 
+PhysicsEntity.PHYSICS = {
+	STATIC: 'STATIC',
+	KINEMATIC: 'KINEMATIC',
+	DYNAMIC: 'DYNAMIC'
+}
 
-Object.assign(PhysicsEntity, {
-    getMidX: () => PhysicsEntity.halfWidth + PhysicsEntity.x,
-    getMidY: () => PhysicsEntity.halfHeight + PhysicsEntity.y,
-    getTop: () => PhysicsEntity.y,
-    getLeft: () => PhysicsEntity.x,
-    getRight: () => PhysicsEntity.x + PhysicsEntity.width,
-    getBottom: () => PhysicsEntity.y + PhysicsEntity.height
-})
+PhysicsEntity.COLLISION = {
+	DISPLACE: 'DISPLACE',
+	ELASTIC: 'ELASTIC'
+}
 
-
-PhysicsEntity.KINEMATIC = 'kinematic'
-
-PhysicsEntity.DYNAMIC   = 'dynamic'
-
-PhysicsEntity.DISPLACE = 'displace'
-
-PhysicsEntity.ELASTIC = 'elastic'
 
 export default PhysicsEntity

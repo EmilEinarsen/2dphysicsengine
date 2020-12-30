@@ -16,12 +16,21 @@ const rectangle = ({
     point,
     size,
     color = 'black',
-    type = 'fill'
+    type = rectangle.types.fill
 }) => {
+	rectangle.types[type] ?? (type = rectangle.types.fill)
+
     Canvas.ctx.beginPath()
     Canvas.ctx.rect(point.x, point.y, size.width, size.height)
     Canvas.ctx.fillStyle = color 
     Canvas.ctx[type]()
 }
+
+rectangle.types = {
+	fill: 'fill',
+	stroke: 'stroke'
+}
+
+rectangle.form = 'RECTANGLE'
 
 export default rectangle

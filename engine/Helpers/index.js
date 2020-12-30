@@ -4,18 +4,6 @@
  * 
  * @returns {number} 
  */
-export const random = (number) => Math.round(Math.random() * number)
+export const random = (number, { negative } = {}) => (Math.random() * number) * (negative ? (Math.round(Math.random()) === 0 ? -1 : 1) : 1)
 
-/**
- * 
- * @returns {function | number}
- */
-export const timer = () => {
-    const start = new Date().getTime()
-
-    return () => {
-        const end = new Date().getTime()
-
-        return end - start
-    } 
-} 
+export const capitalizeFirstLetter = string => string.charAt(0).toUpperCase() + string.slice(1).toLowerCase()
