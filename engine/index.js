@@ -25,15 +25,41 @@ export default function Engine({
 	preset.edges = edges
 	
 	Canvas({ id, settings: {} })
+
+	/* Canvas.element.onmousemove = e => {
+		let entity = Engine.entities[0]
+		entity.x = e.clientX / preset.canvas.scale
+		entity.y = e.clientY / preset.canvas.scale
+	} */
+
+	Canvas.element.onclick = () => {
+		const canvasSize = getCanvasSize()
+		Engine.entities.push(PhysicsEntity({
+			form: { type: Draw.forms.CIRCLE },
+			physics: PhysicsEntity.PHYSICS.DYNAMIC,
+			pos: {
+				x: random(canvasSize.width),
+				y: random(canvasSize.height),
+				vx: random(1, { negative: true }),
+				vy: random(1, { negative: true })
+			},
+			size: { radius: 100 },
+			mass: .05,
+			restitution: .8
+		}))
+	}
+
 	initial()
 }
+
+
 
 const initial = () => {
 	Engine.timer = timer()
     Engine.entities = []
 	const canvasSize = getCanvasSize()
 
-	for(let i = 0; i < 3000; i++)
+	/* for(let i = 0; i < 10; i++)
 		Engine.entities.push(PhysicsEntity({
 			form: { type: Draw.forms.CIRCLE },
 			physics: PhysicsEntity.PHYSICS.DYNAMIC,
@@ -43,10 +69,24 @@ const initial = () => {
 				vx: random(1, { negative: true }),
 				vy: random(1, { negative: true })
 			},
-			size: { radius: 10 },
-			mass: .1
-		}))
-
+			size: { radius: 100 },
+			mass: .05
+		})) */
+		for(let i = 0; i < 10; i++)
+	Engine.entities.push(PhysicsEntity({
+		form: { type: Draw.forms.CIRCLE },
+		physics: PhysicsEntity.PHYSICS.DYNAMIC_OVERLAP,
+		pos: {
+			x: canvasSize.width/2,
+			y: canvasSize.height/2,
+			vx: random(3, { negative: true }),
+			vy: random(3, { negative: true })
+		},
+		size: { radius: 100 },
+		mass: .1,
+		restitution: .8
+	}))
+	
 	/* Engine.entities.push(PhysicsEntity({
 		form: { type: Draw.forms.CIRCLE },
 		physics: PhysicsEntity.PHYSICS.DYNAMIC,
@@ -56,23 +96,11 @@ const initial = () => {
 			vx: 0,
 			vy: 0
 		},
-		size: { radius: 50 },
-		mass: .1
-	}))
-
-	Engine.entities.push(PhysicsEntity({
-		form: { type: Draw.forms.CIRCLE },
-		physics: PhysicsEntity.PHYSICS.DYNAMIC,
-		pos: {
-			x: canvasSize.width/2,
-			y: canvasSize.height/2 - 60,
-			vx: 0,
-			vy: 0
-		},
-		size: { radius: 50 },
-		mass: .1
+		size: { radius: 100 },
+		mass: 1,
+		restitution: .8
 	})) */
-	
+
 	/* for(let i = 0; i < 50; i++)
 	Engine.entities.push(PhysicsEntity({
 		form: { type: Draw.forms.CIRCLE },
@@ -107,12 +135,7 @@ const initial = () => {
 const process = () => {
 	let getTime = () => 0
 	
-	Engine.process = setInterval(() => {
-		preset.edges && screenEdges()
-
-		removeOutOfBoundEntities()
-
-		step({ elapsed: getTime() })
+	Engine.process = setInterval(() => {step({ elapsed: getTime() })
 
 		getTime = timer()
 
@@ -144,20 +167,22 @@ const step = ({ elapsed }) => {
 					break
 				case PhysicsEntity.PHYSICS.DYNAMIC:
 					// can affect and be affected
-					entity.vx += Physics.velocity(entity.ax, elapsed, 'x')
-					entity.vy += Physics.velocity(entity.ay, elapsed, 'y')
-					entity.x += Physics.distance(entity.vx, elapsed)
-					entity.y += Physics.distance(entity.vy, elapsed)
+					Physics.velocity(entity, elapsed)
+					Physics.distance(entity, elapsed)
 					break
 			}
 
 	})
+
+	preset.edges && screenEdges()
 	
 	/* Detect collisions */
 	Engine.entities.forEach((entity, index) => {
 		for(let i = index + 1; i < Engine.entities.length; i++)
 			Collision(entity, Engine.entities[i])
 	})
+
+	removeOutOfBoundEntities()
 
     draw()
 }
@@ -210,19 +235,19 @@ const screenEdges = () => {
 		}
 
 		;(e.l <= 0 && entity.vx <= 0) && (
-			(entity.vx = -entity.vx),
+			(entity.vx = -entity.vx * entity.restitution),
 			(entity.form.type === 'CIRCLE' ? entity.x = entity.size.radius : entity.x = 0)
 		)
 		;(e.r >= canvasSize.width && entity.vx >= 0) && (
-			(entity.vx = -entity.vx),
+			(entity.vx = -entity.vx * entity.restitution),
 			(entity.form.type === 'CIRCLE' ? entity.x = canvasSize.width - entity.size.radius : entity.x = canvasSize.width - entity.size.width)
 		)
 		;(e.t <= 0 && entity.vy <= 0) && (
-			(entity.vy = -entity.vy),
+			(entity.vy = -entity.vy * entity.restitution),
 			(entity.form.type === 'CIRCLE' ? entity.y = entity.size.radius : entity.y = 0)
 		)
 		;(e.b >= canvasSize.height && entity.vy >= 0) && (
-			(entity.vy = -entity.vy),
+			(entity.vy = -entity.vy * entity.restitution),
 			(entity.form.type === 'CIRCLE' ? entity.y = canvasSize.height - entity.size.radius : entity.y = canvasSize.height - entity.size.height)
 		)
 	})

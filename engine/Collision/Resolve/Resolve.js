@@ -1,14 +1,11 @@
-import { pythagorean } from '../../Calculations/Formulas'
-import Physics from '../../Physics'
 import Detection from '../Detection/Detection'
 import circle from './types/circle'
 import circleRectangle from './types/circleRectangle'
 
 function Resolve(ent0, ent1, type) {
-
 	resolveMomentum(ent0, ent1, type)
 
-	preventEntityMerging(ent0, ent1, type)
+	preventEntityMerging(ent0, ent1)
 
 }
 
@@ -19,30 +16,27 @@ const resolveMomentum = (ent0, ent1, type) =>
 		? circleRectangle(ent0, ent1)
 	: ''
 
-const preventEntityMerging = (ent0, ent1, type) => {
+const preventEntityMerging = (ent0, ent1) => {
+	let 
+		dx = ent1.x - ent0.x,
+		dy = ent1.y - ent0.y
+
+	dx === 0 && dy === 0 && (dx = .001)
 	
-	const d = {
-		x: ent0.getMidX() - ent1.getMidX(),
-		y: ent0.getMidY() - ent1.getMidY(),
+	let 
+		d = Math.sqrt(dx*dx + dy*dy),
+		step = ent0.size.radius + ent1.size.radius - d
+	
+	if (step <= 0) return
+
+	let correctionDistribution = {
+		ent0: (ent1.mass) / (ent0.mass + ent1.mass),
+		ent1: (ent0.mass) / (ent0.mass + ent1.mass),
 	}
-	d.x === 0 && (d.x = .1)
-	d.y === 0 && (d.y = .1)
-	d.d = pythagorean(d.x, d.y)
 
-	if(d.d > (ent0.size.radius + ent1.size.radius)) return 
-	
-	const angle = Math.atan2(d.y,d.x)
-
-	const dToMove = {
-		ent0: ent0.form.type === 'CIRCLE' ? d.d / 4 : d.d / 2,
-		ent1: ent1.form.type === 'CIRCLE' ? d.d / 4 : d.d / 2
-	}
-	
-	ent0.x += dToMove.ent0 * Math.cos(angle)
-	ent1.x += dToMove.ent1 * Math.cos(angle+(Math.PI))
-	ent0.y += dToMove.ent0 * Math.sin(angle)
-	ent1.y += dToMove.ent1 * Math.sin(angle+(Math.PI))
-
+	dx /= d; dy /= d
+	ent0.x -= dx*step*correctionDistribution.ent0; ent0.y -= dy*step*correctionDistribution.ent0
+	ent1.x += dx*step*correctionDistribution.ent1; ent1.y += dy*step*correctionDistribution.ent1
 }
 
 export default Resolve

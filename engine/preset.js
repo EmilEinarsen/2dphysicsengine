@@ -4,9 +4,10 @@ export default {
 	},
 	physics: {
 		constants: {
-			g: 9.82
+			g: 9.82,
+			friction: .96
 		},
-		speed: 1/4,
+		speed: 1/2,
 		entityOutOfBoundsTolerance: 100
 	},
 	text: {

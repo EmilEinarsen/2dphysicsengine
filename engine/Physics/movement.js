@@ -1,21 +1,23 @@
-import { getCanvasSize } from '../Calculations/Calculations'
 import { secToMs, meterToPixel, pixelToMeter, pythagorean } from '../Calculations/Formulas'
-
 import preset from '../preset'
 
-export const distance = (v, t) => {
-	t = secToMs( t )
-    v = meterToPixel(v)
+export const distance = (entity, elapsed) => {
+	let t = secToMs( elapsed )
 
-    return v * t
+	entity.x += meterToPixel(entity.vx) * t
+	entity.y += meterToPixel(entity.vy) * t
 }
 
-export const velocity = ( a, t, axis = 'x') => {
-	const g = axis === 'y' && preset.perspective === 'SIDE' ? preset.physics.constants.g : 0
-	t = secToMs( t )
-	a = meterToPixel( a + g )
-	
-	return pixelToMeter(a * t)
+export const velocity = (entity, elapsed) => {
+	const 
+		g = preset.perspective === 'SIDE' ? preset.physics.constants.g : 0,
+		t = secToMs( elapsed )
+
+	entity.vx += pixelToMeter(meterToPixel( entity.ax ) * t)
+	entity.vy += pixelToMeter(meterToPixel( entity.ay + g ) * t)
+
+	entity.vx *= preset.physics.constants.friction
+	entity.vy *= preset.physics.constants.friction
 }
 
 export const calcCollision = {

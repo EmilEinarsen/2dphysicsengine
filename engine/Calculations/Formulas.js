@@ -13,7 +13,7 @@ export const meterToPixel = meter => meter * meterToPixelRatio
  */
 export const pythagorean = (a, b) =>
 		// c = √a2 + b2
-		Math.sqrt(( Math.pow(a,2) + Math.pow(b,2) ))
+		Math.sqrt(( (a*a) + (b*b) ))
 
 /**
  * @param {Point} a

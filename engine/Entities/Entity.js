@@ -1,17 +1,6 @@
-let Collision = {
-
-    elastic: (restitution) => {
-        Collision.restitution = restitution || .2
-    },
-
-    displace: () => {
-        // possible friction 
-    }
-}
-
+import Physics from "../Physics"
 
 /**
- * 
  * @param {object} param0
  * @param {string} param0.collisionName 
  * @param {string} param0.type 
@@ -29,16 +18,17 @@ let Collision = {
  * @param {string} param0.form.type
  */
 function PhysicsEntity({ 
-    collisionName = PhysicsEntity.COLLISION.ELASTIC, 
-    physics = PhysicsEntity.PHYSICS.DYNAMIC, 
+	physics = PhysicsEntity.PHYSICS.DYNAMIC, 
+	restitution,
 	size = {},
 	mass = 1,
 	pos = {},
 	form = {}
 }) {
     const Entity = {}
-    Entity.collision = collisionName
 	Entity.physics = physics
+
+	Entity.restitution = restitution || .2
 	
 	Entity.form = {
 		type: form.type ?? 'RECTANGLE'
@@ -66,6 +56,22 @@ function PhysicsEntity({
 		getLeft: () => form.type === 'CIRCLE' ? Entity.x - Entity.size.radius : Entity.x,
 		getRight: () => form.type === 'CIRCLE' ? Entity.x + Entity.size.radius : Entity.x + Entity.size.width,
 	})
+
+	Entity.update = elapsed => {
+		switch (Entity.physics) {
+			case PhysicsEntity.PHYSICS.STATIC:
+				// static hitbox, no interaction upon moving
+				break
+			case PhysicsEntity.PHYSICS.KINEMATIC:
+				// interacts, however unaffected by collisions
+				break
+			case PhysicsEntity.PHYSICS.DYNAMIC:
+				// can affect and be affected
+				Physics.velocity(Entity, elapsed)
+				Physics.distance(Entity, elapsed)
+				break
+		}
+	}
 
     return Entity
 }
